@@ -23,6 +23,7 @@ import (
 	"github.com/usememos/memos/server/profiler"
 	apiv1 "github.com/usememos/memos/server/router/api/v1"
 	"github.com/usememos/memos/server/router/frontend"
+	"github.com/usememos/memos/server/router/meta"
 	"github.com/usememos/memos/server/router/rss"
 	"github.com/usememos/memos/server/runner/s3presign"
 	"github.com/usememos/memos/store"
@@ -77,6 +78,9 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	frontend.NewFrontendService(profile, store).Serve(ctx, echoServer)
 
 	rootGroup := echoServer.Group("")
+
+	// Create and register meta routes.
+	meta.NewMetaService(s.Profile).RegisterRoutes(echoServer)
 
 	// Create and register RSS routes.
 	rss.NewRSSService(s.Profile, s.Store).RegisterRoutes(rootGroup)
