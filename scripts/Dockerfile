@@ -1,8 +1,17 @@
+FROM node:22 AS frontend
+WORKDIR /frontend-build
+COPY web/ ./web/
+WORKDIR /frontend-build/web
+RUN npm install -g pnpm@10
+RUN pnpm install
+RUN pnpm release
+
 FROM golang:1.24-alpine AS backend
 WORKDIR /backend-build
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+COPY --from=frontend /frontend-build/server/router/frontend/dist/ ./server/router/frontend/dist/
 # Please build frontend first, so that the static files are available.
 # Refer to `pnpm release` in package.json for the build command.
 RUN --mount=type=cache,target=/go/pkg/mod \
